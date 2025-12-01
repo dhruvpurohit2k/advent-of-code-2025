@@ -19,31 +19,52 @@ func main() {
 	for reader.Scan() {
 		lines = append(lines, reader.Text())
 	}
-	count := 0
-	var dialPosition int64 = 50
+	var count int = 0
+	var dialPosition int = 50
 	for _, line := range lines {
-		var direction int64
+		var direction int
 		if line[0] == 'L' {
 			direction = -1
 		} else {
 			direction = 1
 		}
-		rotation, err := strconv.ParseInt(line[1:], 10, 16)
-		rotation %= 100
+		rotation, err := strconv.Atoi(line[1:])
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Printf("dial at : %d, rotating amnt : %d, ", dialPosition, rotation*direction)
-		dialPosition += rotation * direction
-		if dialPosition < 0 {
-			dialPosition = 100 + (dialPosition % 100)
+		// for _ = range rotation {
+		// 	if direction == -1 {
+		// 		dialPosition = (dialPosition - 1 + 100) % 100
+		// 	} else {
+		// 		dialPosition = (dialPosition + 1) % 100
+		// 	}
+		// 	if dialPosition == 0 {
+		// 		count++
+		// 	}
+		// }
+		count += rotation / 100
+		rotation %= 100
+		newDialPosition := dialPosition + (rotation * direction)
+		if newDialPosition < 0 {
+			newDialPosition = 100 + (newDialPosition % 100)
 		} else {
-			dialPosition %= 100
+			newDialPosition %= 100
 		}
-		fmt.Printf("after rotation pos is : %d \n", dialPosition)
-		if dialPosition == 0 {
-			count++
+		if direction == -1 {
+			if (dialPosition-newDialPosition) < 0 && dialPosition != 0 {
+				count++
+			} else if newDialPosition == 0 {
+				count++
+			}
 		}
+		if direction == 1 {
+			if (dialPosition-newDialPosition) > 0 && dialPosition != 0 {
+				count++
+			} else if newDialPosition == 0 {
+				count++
+			}
+		}
+		dialPosition = newDialPosition
 	}
 	fmt.Println(count)
 }
